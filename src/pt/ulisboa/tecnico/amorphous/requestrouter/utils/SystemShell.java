@@ -17,15 +17,17 @@ public class SystemShell {
 		ArrayList<String> output = new ArrayList<String>();
 		String outputLine = "";
 		
-		Process cmd;
-		cmd = Runtime.getRuntime().exec(command);
-		cmd.waitFor();
-		BufferedReader cmdOutput = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
-		while ((outputLine = cmdOutput.readLine()) != null) {
-			SystemShell.logger.info("SystemShell execution returned: " + outputLine);
-			output.add(outputLine);
+		Process cmd = Runtime.getRuntime().exec(command);
+		if(cmd.waitFor() == 0){
+			BufferedReader cmdOutput = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
+			while ((outputLine = cmdOutput.readLine()) != null) {
+				SystemShell.logger.info("SystemShell execution returned: " + outputLine);
+				output.add(outputLine);
+			}
+			cmdOutput.close();
+		} else {
+			SystemShell.logger.error("System shell command execution did not return properly");
 		}
-		cmdOutput.close();
 
 		return output;
 	}
