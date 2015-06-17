@@ -1,0 +1,11 @@
+<configuration scan="true">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%level [%logger:%thread] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <logger name="pt.ulisboa.tecnico.amorphous" level=“ALL”/>
+</configuration>

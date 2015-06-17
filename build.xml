@@ -1,0 +1,42 @@
+<project name="RequestRouter" basedir="." default="jar">
+
+    <property name="src.dir"    value="src"/>
+    <property name="lib.dir"    value="lib"/>
+    <property name="build.dir"  value="bin"/>
+    <property name="main-class" value="pt.ulisboa.tecnico.amorphous.requestrouter.Main"/>
+    <property name="jar.name"   value="${ant.project.name}.jar" />
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete file="${jar.name}"/>
+    </target>
+
+    <target name="build" depends="clean">
+        <mkdir dir="${build.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}">
+            <classpath>
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar destfile="${jar.name}" basedir="${build.dir}">
+            <zipgroupfileset dir="${lib.dir}" includes="**/*.jar"/>
+            <fileset dir="${build.dir}">
+                <include name="**/*.*"/>
+            </fileset>
+            <manifest>
+		<attribute name="${ant.project.name}" value="main"/>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.name}" fork="true" />
+    </target>
+
+</project>
