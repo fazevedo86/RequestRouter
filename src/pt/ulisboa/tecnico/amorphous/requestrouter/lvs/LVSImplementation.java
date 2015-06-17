@@ -7,12 +7,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.AmorphousServer;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.GenericNetworkService;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.RequestRouterCluster;
 import pt.ulisboa.tecnico.amorphous.requestrouter.utils.SystemShell;
 
 public class LVSImplementation{
+	private static final Logger logger = LoggerFactory.getLogger(LVSImplementation.class);
 	
 	private static String CMD_LIST_CONN = "ipvsadm -lcn --sort";
 	private static String CMD_SHOW_CLUSTER = "ipvsadm -ln -t ";
@@ -31,7 +35,11 @@ public class LVSImplementation{
 	
 	private static List<String> executeCommand(String cmd){
 		try {
-			return SystemShell.executeCommand(cmd);
+			LVSImplementation.logger.debug("executing command: " + cmd);
+			List<String> result = SystemShell.executeCommand(cmd);
+			for(String rline : result)
+				LVSImplementation.logger.debug(rline);
+			return result;
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return null;
