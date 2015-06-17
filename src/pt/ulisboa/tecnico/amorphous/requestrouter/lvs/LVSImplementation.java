@@ -85,7 +85,7 @@ public class LVSImplementation{
 	
 	public static boolean addCluster(RequestRouterCluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
-		if( result == null || !result.isEmpty() )
+		if( result == null || result.isEmpty() )
 			return false;
 		else
 			return true;
@@ -93,7 +93,7 @@ public class LVSImplementation{
 	
 	public static boolean deleteCluster(RequestRouterCluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_CLUSTER, cluster));
-		if( result == null || !result.isEmpty() )
+		if( result == null || result.isEmpty() )
 			return false;
 		else
 			return true;
@@ -101,7 +101,7 @@ public class LVSImplementation{
 	
 	public static boolean addServer(RequestRouterCluster cluster, AmorphousServer server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_SERVER, cluster, server));
-		if( result == null || !result.isEmpty() )
+		if( result == null || result.isEmpty() )
 			return false;
 		else
 			return true;
@@ -109,7 +109,7 @@ public class LVSImplementation{
 	
 	public static boolean deleteServer(RequestRouterCluster cluster, AmorphousServer server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_SERVER, cluster, server));
-		if( result == null || !result.isEmpty() )
+		if( result == null || result.isEmpty() )
 			return false;
 		else
 			return true;
@@ -148,5 +148,6 @@ public class LVSImplementation{
 			}
 		} catch (IOException | InterruptedException e) {
 		}
-		return null;	}
+		return null;
+	}
 }
