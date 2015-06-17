@@ -42,6 +42,7 @@ public class LVSImplementation{
 					LVSImplementation.logger.info(rline);
 			else
 				LVSImplementation.logger.info("(Execution produced no output)");
+			
 			return result;
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
