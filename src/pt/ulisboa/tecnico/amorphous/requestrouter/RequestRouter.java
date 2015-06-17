@@ -26,20 +26,20 @@ public class RequestRouter {
 			this.shell.startShell();
 	}
 	
-	public void addCluster(RequestRouterCluster rrCluster){
-		LVSImplementation.addCluster(rrCluster);
+	public boolean addCluster(RequestRouterCluster rrCluster){
+		return LVSImplementation.addCluster(rrCluster);
 	}
 	
-	public void deleteCluster(RequestRouterCluster rrCluster){
-		LVSImplementation.deleteCluster(rrCluster);
+	public boolean deleteCluster(RequestRouterCluster rrCluster){
+		return LVSImplementation.deleteCluster(rrCluster);
 	}
 	
-	public void addServer(RequestRouterCluster rrCluster, AmorphousServer server){
-		LVSImplementation.addServer(rrCluster, server);
+	public boolean addServer(RequestRouterCluster rrCluster, AmorphousServer server){
+		return LVSImplementation.addServer(rrCluster, server);
 	}
 	
-	public void deleteServer(RequestRouterCluster rrCluster, AmorphousServer server){
-		LVSImplementation.deleteServer(rrCluster, server);
+	public boolean deleteServer(RequestRouterCluster rrCluster, AmorphousServer server){
+		return LVSImplementation.deleteServer(rrCluster, server);
 	}
 	
 	public List<AmorphousServer> getClusterMembers(RequestRouterCluster cluster){

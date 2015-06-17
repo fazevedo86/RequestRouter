@@ -29,15 +29,12 @@ public class LVSImplementation{
 		// TODO Auto-generated constructor stub
 	}
 	
-	private static void executeCommand(String cmd){
+	private static List<String> executeCommand(String cmd){
 		try {
-			SystemShell.executeCommand(cmd);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			return SystemShell.executeCommand(cmd);
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return null;
 		}
 	}
 	
@@ -86,20 +83,41 @@ public class LVSImplementation{
 		return cmd.replaceFirst("CLUSTER_IP", cluster.IPAddress.getHostAddress()).replaceFirst("CLUSTER_PORT", String.valueOf(cluster.Port)).replaceFirst("SERVER_IP", server.IPAddress.getHostAddress()).replaceFirst("SERVER_PORT", String.valueOf(server.Port));
 	}
 	
-	public static void addCluster(RequestRouterCluster cluster){
-		LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
+	public static boolean addCluster(RequestRouterCluster cluster){
+		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
+		if( result == null || !result.isEmpty() )
+			return false;
+		else
+			return true;
 	}
 	
-	public static void deleteCluster(RequestRouterCluster cluster){
-		LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_CLUSTER, cluster));
+	public static boolean deleteCluster(RequestRouterCluster cluster){
+		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_CLUSTER, cluster));
+		if( result == null || !result.isEmpty() )
+			return false;
+		else
+			return true;
 	}
 	
-	public static void addServer(RequestRouterCluster cluster, AmorphousServer server){
-		LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_SERVER, cluster, server));
+	public static boolean addServer(RequestRouterCluster cluster, AmorphousServer server){
+		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_SERVER, cluster, server));
+		if( result == null || !result.isEmpty() )
+			return false;
+		else
+			return true;
 	}
 	
-	public static void deleteServer(RequestRouterCluster cluster, AmorphousServer server){
-		LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_SERVER, cluster, server));
+	public static boolean deleteServer(RequestRouterCluster cluster, AmorphousServer server){
+		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_SERVER, cluster, server));
+		if( result == null || !result.isEmpty() )
+			return false;
+		else
+			return true;
+	}
+	
+	public static List<RequestRouterCluster> getClusters(){
+		// TODO implement it
+		return null;
 	}
 	
 	public static List<AmorphousServer> getClusterMembers(RequestRouterCluster cluster){

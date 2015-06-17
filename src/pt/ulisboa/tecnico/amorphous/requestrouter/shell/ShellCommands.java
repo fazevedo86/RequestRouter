@@ -32,8 +32,7 @@ public class ShellCommands {
 	@Command(description="Add a new RequestRouter cluster")
     public String addcluster(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
-			this.context.addCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
-			return "Added cluster " + IP + ":" + Port;
+			return (this.context.addCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port))) ? "Added cluster " + IP + ":" + Port : "Failed a new cluster");
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
@@ -42,8 +41,7 @@ public class ShellCommands {
 	@Command(description="Delete a RequestRouter cluster")
     public String deletecluster(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
-			this.context.deleteCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
-			return "Added cluster " + IP + ":" + Port;
+			return (this.context.deleteCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port))) ? "Added cluster " + IP + ":" + Port : "Failed to remove the cluster");
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
@@ -53,10 +51,15 @@ public class ShellCommands {
     public String listservers(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
 			List<AmorphousServer> servers = this.context.getClusterMembers(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
-			for(AmorphousServer server : servers){
-				System.out.println("* " + server.IPAddress.getHostAddress() + ":" + server.Port);
+			if(servers != null){
+				System.out.println("Active servers for cluster" + IP + ":" + Port);
+				for(AmorphousServer server : servers){
+					System.out.println("* " + server.IPAddress.getHostAddress() + ":" + server.Port);
+				}
+				return "";
+			} else {
+				return "No servers found for this cluster";
 			}
-			return "";
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
@@ -66,8 +69,11 @@ public class ShellCommands {
     public String addserver(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String ClusterIP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String ClusterPort, 
     		@Param(name="ServerIP", description="The IP address for the Amorphous server") String ServerIP, @Param(name="ServerPort", description="The TCP port for the Amorphous cluster") String ServerPort) {
     	try {
-			this.context.addServer(new RequestRouterCluster(InetAddress.getByName(ClusterIP), Integer.valueOf(ClusterPort)), new AmorphousServer(InetAddress.getByName(ServerIP), Integer.valueOf(ServerPort)));
-			return "Server " + ServerIP + ":" + ServerPort + "added to cluster " + ClusterIP + ":" + ClusterPort;
+			boolean result = this.context.addServer(new RequestRouterCluster(InetAddress.getByName(ClusterIP), Integer.valueOf(ClusterPort)), new AmorphousServer(InetAddress.getByName(ServerIP), Integer.valueOf(ServerPort)));
+			if(result)
+				return "Server " + ServerIP + ":" + ServerPort + "added to cluster " + ClusterIP + ":" + ClusterPort;
+			else
+				return "Failed to add the server to the cluster";
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
@@ -77,8 +83,11 @@ public class ShellCommands {
     public String removeserver(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String ClusterIP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String ClusterPort, 
     		@Param(name="ServerIP", description="The IP address for the Amorphous server") String ServerIP, @Param(name="ServerPort", description="The TCP port for the Amorphous cluster") String ServerPort) {
     	try {
-			this.context.deleteServer(new RequestRouterCluster(InetAddress.getByName(ClusterIP), Integer.valueOf(ClusterPort)), new AmorphousServer(InetAddress.getByName(ServerIP), Integer.valueOf(ServerPort)));
-			return "Server " + ServerIP + ":" + ServerPort + "deleted from cluster " + ClusterIP + ":" + ClusterPort;
+			boolean result = this.context.deleteServer(new RequestRouterCluster(InetAddress.getByName(ClusterIP), Integer.valueOf(ClusterPort)), new AmorphousServer(InetAddress.getByName(ServerIP), Integer.valueOf(ServerPort)));
+			if(result)
+				return "Server " + ServerIP + ":" + ServerPort + "deleted from cluster " + ClusterIP + ":" + ClusterPort;
+			else
+				return "Failed to remove the server from the cluster";
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
