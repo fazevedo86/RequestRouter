@@ -32,7 +32,11 @@ public class ShellCommands {
 	@Command(description="Add a new RequestRouter cluster")
     public String addcluster(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
-			return (this.context.addCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port))) ? "Added cluster " + IP + ":" + Port : "Failed a new cluster");
+			boolean result = this.context.addCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
+			if(result)
+				return "Added cluster " + IP + ":" + Port;
+			else
+				return "Failed to add new cluster";
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}
@@ -41,7 +45,11 @@ public class ShellCommands {
 	@Command(description="Delete a RequestRouter cluster")
     public String deletecluster(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
-			return (this.context.deleteCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port))) ? "Added cluster " + IP + ":" + Port : "Failed to remove the cluster");
+			boolean result = this.context.deleteCluster(new RequestRouterCluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
+			if(result)
+				return "Added cluster " + IP + ":" + Port;
+			else
+				return "Failed to remove the cluster";
 		} catch (UnknownHostException | NumberFormatException e) {
 			return "An error occurred: " + e.getStackTrace().toString();
 		}

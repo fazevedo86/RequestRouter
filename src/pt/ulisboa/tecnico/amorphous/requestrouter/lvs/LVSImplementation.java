@@ -35,10 +35,10 @@ public class LVSImplementation{
 	
 	private static List<String> executeCommand(String cmd){
 		try {
-			LVSImplementation.logger.debug("executing command: " + cmd);
+			LVSImplementation.logger.info("executing command: " + cmd);
 			List<String> result = SystemShell.executeCommand(cmd);
 			for(String rline : result)
-				LVSImplementation.logger.debug(rline);
+				LVSImplementation.logger.info(rline);
 			return result;
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
