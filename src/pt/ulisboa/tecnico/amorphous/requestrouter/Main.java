@@ -25,7 +25,7 @@ public class Main {
 		
 		// Bootstrap the whole process
 		try {
-			new RequestRouter(coh,false,true);
+			new RequestRouter(coh);
 		} catch (NumberFormatException | InstantiationException e) {
 			System.out.println(e.getClass().getSimpleName() + " occurred while starting RequestRouter: " + e.getMessage());
 			e.printStackTrace();

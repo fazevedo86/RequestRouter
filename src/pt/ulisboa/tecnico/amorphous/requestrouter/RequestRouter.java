@@ -25,10 +25,12 @@ public class RequestRouter {
 	
 	private final RequestRouterShell shell;
 	private final ConfigHelper config;
+	
 	private final Cluster amorphousVirtualCluster;
 	private final AmorphousCluster amorphousClusterIntegration;
+	private final boolean cleanInstance;
 
-	public RequestRouter(ConfigOptionsHelper coh, boolean cleanInstance, boolean interactive) throws NumberFormatException, UnknownHostException, InstantiationException {
+	public RequestRouter(ConfigOptionsHelper coh) throws NumberFormatException, UnknownHostException, InstantiationException {
 		this.shell = new RequestRouterShell(this);
 		this.config = new ConfigHelper(coh);
 		
@@ -36,8 +38,9 @@ public class RequestRouter {
 		
 		this.amorphousVirtualCluster = new Cluster( InetAddress.getByName(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_IP)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_PORT)));
 		this.amorphousClusterIntegration = new AmorphousCluster(this, configs.get(ConfigOptionsHelper.KEY_AMORPH_GROUP), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_PORT)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_HELLO_INTERVAL)));
+		this.cleanInstance = Boolean.parseBoolean(configs.get(ConfigOptionsHelper.KEY_CLEAN_MODE));
 		
-		if(cleanInstance){
+		if(this.cleanInstance){
 			this.cleanup();
 		} else {
 			// Import existing servers
@@ -53,7 +56,7 @@ public class RequestRouter {
 		LVSImplementation.addCluster(this.amorphousVirtualCluster);
 
 			
-		if(interactive)
+		if(Boolean.parseBoolean(configs.get(ConfigOptionsHelper.KEY_INTERACTIVE_MODE)))
 			this.shell.startShell();
 		
 		this.amorphousClusterIntegration.startClusterService();
@@ -94,6 +97,11 @@ public class RequestRouter {
 	
 	public void cleanup(){
 		LVSImplementation.deleteAllClusters();
+	}
+	
+	public void exit(){
+		if(this.cleanInstance)
+			this.cleanup();
 	}
 
 }

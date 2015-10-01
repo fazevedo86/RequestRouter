@@ -9,6 +9,12 @@ import org.kohsuke.args4j.Option;
 public class ConfigOptionsHelper {
     private static final String DEFAULT_CONFIG_FILE = "RequestRouter.cfg";
     
+    public static final String KEY_CLEAN_MODE = "CleanMode";
+    private static final String DEFAULT_CLEAN_MODE = "TRUE";
+    
+    public static final String KEY_INTERACTIVE_MODE = "InteractiveMode";
+    private static final String DEFAULT_INTERACTIVE_MODE = "TRUE";
+    
     public static final String KEY_RRCLUSTER_IP = "RequestRouterIP";
     private static final String DEFAULT_RRCLUSTER_IP = "172.30.20.10";
     
@@ -26,6 +32,10 @@ public class ConfigOptionsHelper {
     
     @Option(name="-cf", aliases="--configFile", metaVar="FILE", usage="RequestRouter configuration file")
     private String configFile = DEFAULT_CONFIG_FILE;
+    @Option(name="-c", aliases="--CleanMode", metaVar="boolean", usage="Cleanup IPVS when initializing and when shutting down")
+    private String cleanMode = DEFAULT_CLEAN_MODE;
+    @Option(name="-i", aliases="--InteractiveMode", metaVar="boolean", usage="Provide a shell to interact with the Request Router")
+    private String interactiveMode = DEFAULT_INTERACTIVE_MODE;
     @Option(name="-rrip", aliases="--RequestRouterIP", metaVar="IPv4", usage="The IP address for the RequestRouter cluster")
     private String rrClusterIP = DEFAULT_RRCLUSTER_IP;
     @Option(name="-rrport", aliases="--RequestRouterPort", metaVar="int", usage="The TCP Port for the RequestRouter cluster")
@@ -45,6 +55,8 @@ public class ConfigOptionsHelper {
 	}
     
     private void populateConfs(){
+    	confs.put(ConfigOptionsHelper.KEY_CLEAN_MODE, this.cleanMode);
+    	confs.put(ConfigOptionsHelper.KEY_INTERACTIVE_MODE, this.interactiveMode);
     	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_IP, this.rrClusterIP);
     	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_PORT, this.rrClusterPort);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_GROUP, this.amorphGroup);

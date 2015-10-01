@@ -25,7 +25,7 @@ public class ShellCommands {
 	
 	@Command
     public void quit() {
-		this.context.cleanup();
+		this.context.exit();
         System.exit(0);
     }
 
