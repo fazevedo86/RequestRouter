@@ -40,8 +40,6 @@ public class RequestRouter {
 		if(cleanInstance){
 			this.cleanup();
 		} else {
-			// Add cluster anyway
-			LVSImplementation.addCluster(this.amorphousVirtualCluster);
 			// Import existing servers
 			List<Server> configuredServers = this.getClusterMembers(this.amorphousVirtualCluster);
 			List<ClusterNode> clusterNodes = new ArrayList<ClusterNode>(configuredServers.size());
@@ -51,6 +49,9 @@ public class RequestRouter {
 			}
 			this.amorphousClusterIntegration.importState(clusterNodes);
 		}
+		
+		LVSImplementation.addCluster(this.amorphousVirtualCluster);
+
 			
 		if(interactive)
 			this.shell.startShell();
@@ -93,7 +94,6 @@ public class RequestRouter {
 	
 	public void cleanup(){
 		LVSImplementation.deleteAllClusters();
-		LVSImplementation.addCluster(this.amorphousVirtualCluster);
 	}
 
 }
