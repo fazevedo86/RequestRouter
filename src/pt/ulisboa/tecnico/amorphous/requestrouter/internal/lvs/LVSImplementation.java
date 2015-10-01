@@ -27,7 +27,7 @@ public class LVSImplementation{
 	private static String CMD_ADD_CLUSTER = "ipvsadm -A -t CLUSTER_IP:CLUSTER_PORT -s lc";
 	private static String CMD_REMOVE_CLUSTER = "ipvsadm -D -t CLUSTER_IP:CLUSTER_PORT";
 	private static String CMD_ADD_SERVER = "ipvsadm -a -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT -m -w 1";
-	private static String CMD_REMOVE_SERVER = "ipvsadm -d -t 172.30.10.10:6653 -r 172.30.20.101:6653";
+	private static String CMD_REMOVE_SERVER = "ipvsadm -d -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT";
 	
 	private static String REGEX_IP_PORT = "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{3,5}$";
 	private static String MARKER_CLUSTER_SERVER = "->";
@@ -100,9 +100,9 @@ public class LVSImplementation{
 	public static boolean addCluster(Cluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
 		if( result == null || result.isEmpty() )
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 	
 	public static boolean deleteCluster(Cluster cluster){
@@ -116,9 +116,9 @@ public class LVSImplementation{
 	public static boolean addServer(Cluster cluster, Server server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_SERVER, cluster, server));
 		if( result == null || result.isEmpty() )
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 	
 	public static boolean deleteServer(Cluster cluster, Server server){
@@ -172,7 +172,7 @@ public class LVSImplementation{
 			}
 		} catch (IOException | InterruptedException e) {
 		}
-		return null;
+		return servers;
 	}
 
 	public static List<Server> getClusterMemberStatistics(Cluster cluster){
