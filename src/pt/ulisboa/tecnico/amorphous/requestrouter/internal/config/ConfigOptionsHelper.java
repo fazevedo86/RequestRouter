@@ -49,6 +49,7 @@ public class ConfigOptionsHelper {
     	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_PORT, this.rrClusterPort);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_GROUP, this.amorphGroup);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_PORT, this.amorphClusterPort);
+    	confs.put(ConfigOptionsHelper.KEY_AMORPH_HELLO_INTERVAL, this.amorphClusterHelloInterval);
     }
     
     protected String getConfigFileName() {

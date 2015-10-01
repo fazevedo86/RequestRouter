@@ -36,8 +36,9 @@ public class RequestRouter {
 		if(cleanInstance){
 			this.cleanup();
 		} else {
-			// Add it anyway
+			// Add cluster anyway
 			LVSImplementation.addCluster(this.amorphousVirtualCluster);
+			// Import existing servers
 			List<Server> configuredServers = this.getClusterMembers(this.amorphousVirtualCluster);
 			List<ClusterNode> clusterNodes = new ArrayList<ClusterNode>(configuredServers.size());
 			for(Server s : configuredServers){
