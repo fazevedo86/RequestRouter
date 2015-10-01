@@ -172,6 +172,7 @@ public class LVSImplementation{
 			}
 		} catch (IOException | InterruptedException e) {
 		}
+		LVSImplementation.logger.info("Found " + servers.size() + " servers for cluster " + cluster.getIP().getHostAddress() + ":" + cluster.getPort());
 		return servers;
 	}
 

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.amorphous.AmorphousCluster;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.amorphous.types.ClusterNode;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigHelper;
@@ -18,6 +21,7 @@ import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Cluster;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Server;
 
 public class RequestRouter {
+	private static final Logger logger = LoggerFactory.getLogger(RequestRouter.class);
 	
 	private final RequestRouterShell shell;
 	private final ConfigHelper config;
@@ -42,6 +46,7 @@ public class RequestRouter {
 			List<Server> configuredServers = this.getClusterMembers(this.amorphousVirtualCluster);
 			List<ClusterNode> clusterNodes = new ArrayList<ClusterNode>(configuredServers.size());
 			for(Server s : configuredServers){
+				RequestRouter.logger.debug("Importing a server from existing cluster config...");
 				clusterNodes.add(new ClusterNode(s.getIP(), String.valueOf(s.getPort())));
 			}
 			this.amorphousClusterIntegration.importState(clusterNodes);

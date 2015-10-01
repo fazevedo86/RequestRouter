@@ -28,6 +28,7 @@ public class Main {
 			new RequestRouter(coh,false,true);
 		} catch (NumberFormatException | InstantiationException e) {
 			System.out.println(e.getClass().getSimpleName() + " occurred while starting RequestRouter: " + e.getMessage());
+			e.printStackTrace();
 		}
 		
 	}
