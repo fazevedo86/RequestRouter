@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.amorphous.requestrouter.internal.config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,14 +46,13 @@ public class ConfigOptionsHelper {
     @Option(name="-aint", aliases="--AmorphHelloInterval", metaVar="int", usage="The Hello Interval to be considered for the Amorphous cluster")
     private String amorphClusterHelloInterval = DEFAULT_AMORPH_HELLO_INTERVAL;
     
-    private final Map<String,String> confs;
+    protected String getConfigFileName() {
+    	return this.configFile;
+    }
     
-    public ConfigOptionsHelper() {
-    	this.confs = new HashMap<String, String>();
-    	this.populateConfs();
-	}
-    
-    private void populateConfs(){
+    public Map<String, String> getAllConfigs(){
+    	Map<String,String> confs = new HashMap<String, String>();
+    	
     	confs.put(ConfigOptionsHelper.KEY_CLEAN_MODE, this.cleanMode);
     	confs.put(ConfigOptionsHelper.KEY_INTERACTIVE_MODE, this.interactiveMode);
     	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_IP, this.rrClusterIP);
@@ -62,14 +60,8 @@ public class ConfigOptionsHelper {
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_GROUP, this.amorphGroup);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_PORT, this.amorphClusterPort);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_HELLO_INTERVAL, this.amorphClusterHelloInterval);
-    }
-    
-    protected String getConfigFileName() {
-    	return this.configFile;
-    }
-    
-    public Map<String, String> getAllConfigs(){
-    	return Collections.unmodifiableMap(this.confs);
+    	
+    	return confs;
     }
     
 }

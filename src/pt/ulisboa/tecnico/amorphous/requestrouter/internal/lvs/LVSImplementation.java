@@ -37,13 +37,13 @@ public class LVSImplementation{
 	
 	private static List<String> executeCommand(String cmd){
 		try {
-			LVSImplementation.logger.info("Executing command: " + cmd);
+			LVSImplementation.logger.debug("Executing command: " + cmd);
 			List<String> result = SystemShell.executeCommand(cmd);
-			if(!result.isEmpty())
-				for(String rline : result)
-					LVSImplementation.logger.info(rline);
-			else
-				LVSImplementation.logger.info("(Execution produced no output)");
+			if(result.isEmpty())
+				LVSImplementation.logger.debug("(Execution produced no output)");
+//			else
+//				for(String rline : result)
+//					LVSImplementation.logger.info(rline);
 			
 			return result;
 		} catch (IOException | InterruptedException e) {

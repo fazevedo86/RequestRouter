@@ -5,7 +5,6 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
 
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigHelper;
 import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigOptionsHelper;
 
 public class Main {
@@ -16,6 +15,12 @@ public class Main {
 		// Parse execution flags
 		ConfigOptionsHelper coh = new ConfigOptionsHelper();
 		CmdLineParser parser = new CmdLineParser(coh);
+		
+		if(args.length == 1 && ((args[0] == "-h") || (args[0] == "-help") || (args[0] == "--h") || (args[0] == "--help")) ){
+			parser.printUsage(System.out);
+			return;
+		}
+		
 		try {
 			parser.parseArgument(args);
 		} catch (CmdLineException e) {
