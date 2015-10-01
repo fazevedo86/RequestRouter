@@ -18,19 +18,20 @@ import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Server;
 public class LVSImplementation{
 	private static final Logger logger = LoggerFactory.getLogger(LVSImplementation.class);
 	
-	private static String CMD_CLEAR_CLUSTERS = "ipvsadm -C";
+	private static final String CMD_CLEAR_CLUSTERS = "ipvsadm -C";
 	
-	private static String CMD_SHOW_CLUSTERS = "ipvsadm -ln";
-	private static String CMD_LIST_CONN = "ipvsadm -lcn --sort";
-	private static String CMD_SHOW_CLUSTER_MEMBERS = "ipvsadm -ln -t CLUSTER_IP:CLUSTER_PORT";
+	private static final String CMD_SHOW_CLUSTERS = "ipvsadm -ln";
+	private static final String CMD_LIST_CONN = "ipvsadm -lcn --sort";
+	private static final String CMD_SHOW_CLUSTER_MEMBERS = "ipvsadm -ln -t CLUSTER_IP:CLUSTER_PORT";
 	
-	private static String CMD_ADD_CLUSTER = "ipvsadm -A -t CLUSTER_IP:CLUSTER_PORT -s lc";
-	private static String CMD_REMOVE_CLUSTER = "ipvsadm -D -t CLUSTER_IP:CLUSTER_PORT";
-	private static String CMD_ADD_SERVER = "ipvsadm -a -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT -m -w 1";
-	private static String CMD_REMOVE_SERVER = "ipvsadm -d -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT";
+	private static final String CMD_ADD_CLUSTER = "ipvsadm -A -t CLUSTER_IP:CLUSTER_PORT -s lc";
+	private static final String CMD_REMOVE_CLUSTER = "ipvsadm -D -t CLUSTER_IP:CLUSTER_PORT";
+	private static final String CMD_ADD_SERVER = "ipvsadm -a -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT -m -w 1";
+	private static final String CMD_REMOVE_SERVER = "ipvsadm -d -t CLUSTER_IP:CLUSTER_PORT -r SERVER_IP:SERVER_PORT";
 	
-	private static String REGEX_IP_PORT = "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{3,5}$";
-	private static String MARKER_CLUSTER_SERVER = "->";
+	private static final String REGEX_IP_PORT = "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}:[0-9]{3,5}$";
+	private static final String MARKER_CLUSTER_SERVER = "->";
+	private static final String DUPLICATE_CLUSTER_MESSAGE = "Service already exists";
 	
 	public LVSImplementation() {
 	}
@@ -99,7 +100,7 @@ public class LVSImplementation{
 	
 	public static boolean addCluster(Cluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
-		if( result == null || result.isEmpty() )
+		if( result == null || result.isEmpty() || (result.size() == 1 && result.get(0).equals(LVSImplementation.DUPLICATE_CLUSTER_MESSAGE)) )
 			return true;
 		else
 			return false;
