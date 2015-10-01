@@ -124,18 +124,18 @@ public class LVSImplementation{
 	public static boolean deleteServer(Cluster cluster, Server server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_SERVER, cluster, server));
 		if( result == null || result.isEmpty() )
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 	
 	public static boolean deleteAllClusters(){		
 		// Delete all existing clusters 
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.CMD_CLEAR_CLUSTERS);
 		if( result == null || result.isEmpty() )
-			return false;
-		else
 			return true;
+		else
+			return false;
 	}
 	
 	public static List<Cluster> getClusters(){
@@ -167,7 +167,9 @@ public class LVSImplementation{
 			for(String outputLine : cmdOutput){
 				outputLine = outputLine.trim();
 				if(outputLine.startsWith(LVSImplementation.MARKER_CLUSTER_SERVER)){
-					servers.add(LVSImplementation.extractNetworkService(outputLine, Server.class));
+					Server s = LVSImplementation.extractNetworkService(outputLine, Server.class);
+					if(s != null)
+						servers.add(s);
 				}
 			}
 		} catch (IOException | InterruptedException e) {
@@ -183,8 +185,9 @@ public class LVSImplementation{
 			for(String outputLine : cmdOutput){
 				outputLine = outputLine.trim();
 				if(outputLine.startsWith(LVSImplementation.MARKER_CLUSTER_SERVER)){
-					servers.add((Server)LVSImplementation.extractNetworkService(outputLine, Server.class));
-					// TODO add the connection counters to the info
+					Server s = LVSImplementation.extractNetworkService(outputLine, Server.class);
+					if(s != null)
+						servers.add(s);
 				}
 			}
 		} catch (IOException | InterruptedException e) {
