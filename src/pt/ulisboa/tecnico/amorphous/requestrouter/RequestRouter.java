@@ -23,8 +23,6 @@ public class RequestRouter {
 	private final ConfigHelper config;
 	private final Cluster amorphousVirtualCluster;
 	private final AmorphousCluster amorphousClusterIntegration;
-	
-	private Map<Cluster,Set<Server>> clusters;
 
 	public RequestRouter(ConfigOptionsHelper coh, boolean cleanInstance, boolean interactive) throws NumberFormatException, UnknownHostException, InstantiationException {
 		this.shell = new RequestRouterShell(this);
@@ -34,8 +32,6 @@ public class RequestRouter {
 		
 		this.amorphousVirtualCluster = new Cluster( InetAddress.getByName(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_IP)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_PORT)));
 		this.amorphousClusterIntegration = new AmorphousCluster(this, configs.get(ConfigOptionsHelper.KEY_AMORPH_GROUP), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_PORT)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_HELLO_INTERVAL)));
-		
-		this.clusters = new HashMap<Cluster, Set<Server>>();
 		
 		if(cleanInstance){
 			this.cleanup();

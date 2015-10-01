@@ -46,7 +46,7 @@ public class ConfigOptionsHelper {
     
     private void populateConfs(){
     	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_IP, this.rrClusterIP);
-    	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_PORT, this.rrClusterIP);
+    	confs.put(ConfigOptionsHelper.KEY_RRCLUSTER_PORT, this.rrClusterPort);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_GROUP, this.amorphGroup);
     	confs.put(ConfigOptionsHelper.KEY_AMORPH_PORT, this.amorphClusterPort);
     }
