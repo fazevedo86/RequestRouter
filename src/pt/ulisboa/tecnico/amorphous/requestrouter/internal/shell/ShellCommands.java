@@ -29,6 +29,20 @@ public class ShellCommands {
         System.exit(0);
     }
 
+	@Command(description="List all configured clusters")
+    public String listclusters() {
+		List<Cluster> clusters = this.context.getAllClusters();
+		if(clusters != null){
+			System.out.println("Active clusters:");
+			for(Cluster cluster : clusters){
+				System.out.println("* " + cluster.getIP().getHostAddress() + ":" + cluster.getPort());
+			}
+			return "";
+		} else {
+			return "No servers found for this cluster";
+		}
+    }
+	
 	@Command(description="Add a new RequestRouter cluster")
     public String addcluster(@Param(name="ClusterIP", description="The IP address for the RequestRouter cluster") String IP, @Param(name="ClusterPort", description="The TCP port for the RequestRouter cluster") String Port) {
     	try {
@@ -60,7 +74,7 @@ public class ShellCommands {
     	try {
 			List<Server> servers = this.context.getClusterMembers(new Cluster(InetAddress.getByName(IP), Integer.valueOf(Port)));
 			if(servers != null){
-				System.out.println("Active servers for cluster" + IP + ":" + Port);
+				System.out.println("Active servers for cluster " + IP + ":" + Port);
 				for(Server server : servers){
 					System.out.println("* " + server.getIP().getHostAddress() + ":" + server.getPort());
 				}
@@ -79,7 +93,7 @@ public class ShellCommands {
     	try {
 			boolean result = this.context.addServer(new Cluster(InetAddress.getByName(ClusterIP), Integer.valueOf(ClusterPort)), new Server(InetAddress.getByName(ServerIP), Integer.valueOf(ServerPort)));
 			if(result)
-				return "Server " + ServerIP + ":" + ServerPort + "added to cluster " + ClusterIP + ":" + ClusterPort;
+				return "Server " + ServerIP + ":" + ServerPort + " added to cluster " + ClusterIP + ":" + ClusterPort;
 			else
 				return "Failed to add the server to the cluster";
 		} catch (UnknownHostException | NumberFormatException e) {
@@ -101,4 +115,9 @@ public class ShellCommands {
 		}
     }
     
+	@Command(description="Clear all configured clusters")
+    public String clearconfiguration() {
+    	this.context.cleanup();
+    	return "";
+    }
 }

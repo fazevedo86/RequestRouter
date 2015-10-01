@@ -78,6 +78,10 @@ public class RequestRouter {
 		return LVSImplementation.getClusterMembers(cluster);
 	}
 	
+	public List<Cluster> getAllClusters(){
+		return LVSImplementation.getClusters();
+	}
+	
 	public boolean addServer(ClusterNode amorphousNode){
 		Server server = new Server(amorphousNode.getNodeIP(), this.amorphousVirtualCluster.getPort());
 		return this.addServer(this.amorphousVirtualCluster, server);
