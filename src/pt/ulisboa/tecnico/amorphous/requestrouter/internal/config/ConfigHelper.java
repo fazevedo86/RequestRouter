@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.amorphous.requestrouter.config;
+package pt.ulisboa.tecnico.amorphous.requestrouter.internal.config;
 
 import java.io.File;
 import java.io.FileInputStream;

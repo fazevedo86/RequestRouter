@@ -5,8 +5,8 @@ import org.kohsuke.args4j.CmdLineParser;
 
 import java.io.IOException;
 
-import pt.ulisboa.tecnico.amorphous.requestrouter.config.ConfigHelper;
-import pt.ulisboa.tecnico.amorphous.requestrouter.config.ConfigOptionsHelper;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigHelper;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigOptionsHelper;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
@@ -24,9 +24,12 @@ public class Main {
 		}
 		
 		// Bootstrap the whole process
-		new RequestRouter(new ConfigHelper(coh),false,true);
+		try {
+			new RequestRouter(coh,false,true);
+		} catch (NumberFormatException | InstantiationException e) {
+			System.out.println(e.getClass().getSimpleName() + " occurred while starting RequestRouter: " + e.getMessage());
+		}
 		
 	}
-
 	
 }

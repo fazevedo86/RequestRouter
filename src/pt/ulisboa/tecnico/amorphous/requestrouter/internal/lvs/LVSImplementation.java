@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.amorphous.requestrouter.lvs;
+package pt.ulisboa.tecnico.amorphous.requestrouter.internal.lvs;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -10,16 +10,19 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.AmorphousServer;
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.GenericNetworkService;
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.RequestRouterCluster;
-import pt.ulisboa.tecnico.amorphous.requestrouter.utils.SystemShell;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.shell.SystemShell;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Cluster;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.GenericNetworkService;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Server;
 
 public class LVSImplementation{
 	private static final Logger logger = LoggerFactory.getLogger(LVSImplementation.class);
 	
+	private static String CMD_CLEAR_CLUSTERS = "ipvsadm -C";
+	
+	private static String CMD_SHOW_CLUSTERS = "ipvsadm -ln";
 	private static String CMD_LIST_CONN = "ipvsadm -lcn --sort";
-	private static String CMD_SHOW_CLUSTER = "ipvsadm -ln -t ";
+	private static String CMD_SHOW_CLUSTER_MEMBERS = "ipvsadm -ln -t CLUSTER_IP:CLUSTER_PORT";
 	
 	private static String CMD_ADD_CLUSTER = "ipvsadm -A -t CLUSTER_IP:CLUSTER_PORT -s lc";
 	private static String CMD_REMOVE_CLUSTER = "ipvsadm -D -t CLUSTER_IP:CLUSTER_PORT";
@@ -30,12 +33,11 @@ public class LVSImplementation{
 	private static String MARKER_CLUSTER_SERVER = "->";
 	
 	public LVSImplementation() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	private static List<String> executeCommand(String cmd){
 		try {
-			LVSImplementation.logger.info("executing command: " + cmd);
+			LVSImplementation.logger.info("Executing command: " + cmd);
 			List<String> result = SystemShell.executeCommand(cmd);
 			if(!result.isEmpty())
 				for(String rline : result)
@@ -50,7 +52,7 @@ public class LVSImplementation{
 		}
 	}
 	
-	private static <T extends GenericNetworkService> T extractAddress(String line, Class<T> Type){
+	private static <T extends GenericNetworkService> T extractNetworkService(String line, Class<T> Type){
 		String[] lineBits = line.split(" ");
 		for(String bit : lineBits){
 			if(bit.matches(LVSImplementation.REGEX_IP_PORT)){
@@ -87,15 +89,15 @@ public class LVSImplementation{
 		return null;
 	}
 	
-	private static String prepareCmd(String cmd, RequestRouterCluster cluster){
-		return cmd.replaceFirst("CLUSTER_IP", cluster.IPAddress.getHostAddress()).replaceFirst("CLUSTER_PORT", String.valueOf(cluster.Port));
+	private static String prepareCmd(String cmd, Cluster cluster){
+		return cmd.replaceFirst("CLUSTER_IP", cluster.getIP().getHostAddress()).replaceFirst("CLUSTER_PORT", String.valueOf(cluster.getPort()));
 	}
 	
-	private static String prepareCmd(String cmd, RequestRouterCluster cluster, AmorphousServer server){
-		return cmd.replaceFirst("CLUSTER_IP", cluster.IPAddress.getHostAddress()).replaceFirst("CLUSTER_PORT", String.valueOf(cluster.Port)).replaceFirst("SERVER_IP", server.IPAddress.getHostAddress()).replaceFirst("SERVER_PORT", String.valueOf(server.Port));
+	private static String prepareCmd(String cmd, Cluster cluster, Server server){
+		return cmd.replaceFirst("CLUSTER_IP", cluster.getIP().getHostAddress()).replaceFirst("CLUSTER_PORT", String.valueOf(cluster.getPort())).replaceFirst("SERVER_IP", server.getIP().getHostAddress()).replaceFirst("SERVER_PORT", String.valueOf(server.getPort()));
 	}
 	
-	public static boolean addCluster(RequestRouterCluster cluster){
+	public static boolean addCluster(Cluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_CLUSTER, cluster));
 		if( result == null || result.isEmpty() )
 			return false;
@@ -103,7 +105,7 @@ public class LVSImplementation{
 			return true;
 	}
 	
-	public static boolean deleteCluster(RequestRouterCluster cluster){
+	public static boolean deleteCluster(Cluster cluster){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_CLUSTER, cluster));
 		if( result == null || result.isEmpty() )
 			return false;
@@ -111,7 +113,7 @@ public class LVSImplementation{
 			return true;
 	}
 	
-	public static boolean addServer(RequestRouterCluster cluster, AmorphousServer server){
+	public static boolean addServer(Cluster cluster, Server server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_ADD_SERVER, cluster, server));
 		if( result == null || result.isEmpty() )
 			return false;
@@ -119,7 +121,7 @@ public class LVSImplementation{
 			return true;
 	}
 	
-	public static boolean deleteServer(RequestRouterCluster cluster, AmorphousServer server){
+	public static boolean deleteServer(Cluster cluster, Server server){
 		List<String> result = LVSImplementation.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_REMOVE_SERVER, cluster, server));
 		if( result == null || result.isEmpty() )
 			return false;
@@ -127,19 +129,45 @@ public class LVSImplementation{
 			return true;
 	}
 	
-	public static List<RequestRouterCluster> getClusters(){
-		// TODO implement it
-		return null;
+	public static boolean deleteAllClusters(){		
+		// Delete all existing clusters 
+		List<String> result = LVSImplementation.executeCommand(LVSImplementation.CMD_CLEAR_CLUSTERS);
+		if( result == null || result.isEmpty() )
+			return false;
+		else
+			return true;
 	}
 	
-	public static List<AmorphousServer> getClusterMembers(RequestRouterCluster cluster){
-		ArrayList<AmorphousServer> servers = new ArrayList<AmorphousServer>();
+	public static List<Cluster> getClusters(){
+		ArrayList<Cluster> Clusters = new ArrayList<Cluster>();
+		
+		// Get all existing clusters 
+		List<String> cmdOutput = LVSImplementation.executeCommand(LVSImplementation.CMD_SHOW_CLUSTERS);
+		for(String outputLine : cmdOutput){
+			outputLine = outputLine.trim();
+			if(!outputLine.startsWith(LVSImplementation.MARKER_CLUSTER_SERVER)){
+				Cluster c = LVSImplementation.extractNetworkService(outputLine, Cluster.class);
+				if(c != null)
+					Clusters.add(c);
+			}
+		}
+		
+		for(Cluster c : Clusters){
+			for(Server s : LVSImplementation.getClusterMembers(c))
+				c.addClusterMember(s);
+		}
+		
+		return Clusters;
+	}
+	
+	public static List<Server> getClusterMembers(Cluster cluster){
+		ArrayList<Server> servers = new ArrayList<Server>();
 		try {
-			List<String> cmdOutput = SystemShell.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_SHOW_CLUSTER, cluster));
+			List<String> cmdOutput = SystemShell.executeCommand(LVSImplementation.prepareCmd(LVSImplementation.CMD_SHOW_CLUSTER_MEMBERS, cluster));
 			for(String outputLine : cmdOutput){
 				outputLine = outputLine.trim();
 				if(outputLine.startsWith(LVSImplementation.MARKER_CLUSTER_SERVER)){
-					servers.add((AmorphousServer)LVSImplementation.extractAddress(outputLine, AmorphousServer.class));
+					servers.add(LVSImplementation.extractNetworkService(outputLine, Server.class));
 				}
 			}
 		} catch (IOException | InterruptedException e) {
@@ -147,14 +175,14 @@ public class LVSImplementation{
 		return null;
 	}
 
-	public static List<AmorphousServer> getClusterMemberStatistics(RequestRouterCluster cluster){
-		ArrayList<AmorphousServer> servers = new ArrayList<AmorphousServer>();
+	public static List<Server> getClusterMemberStatistics(Cluster cluster){
+		ArrayList<Server> servers = new ArrayList<Server>();
 		try {
 			List<String> cmdOutput = SystemShell.executeCommand(LVSImplementation.CMD_LIST_CONN);
 			for(String outputLine : cmdOutput){
 				outputLine = outputLine.trim();
 				if(outputLine.startsWith(LVSImplementation.MARKER_CLUSTER_SERVER)){
-					servers.add((AmorphousServer)LVSImplementation.extractAddress(outputLine, AmorphousServer.class));
+					servers.add((Server)LVSImplementation.extractNetworkService(outputLine, Server.class));
 					// TODO add the connection counters to the info
 				}
 			}

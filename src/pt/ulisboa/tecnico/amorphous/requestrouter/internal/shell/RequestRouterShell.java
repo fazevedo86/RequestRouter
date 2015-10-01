@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.amorphous.requestrouter.shell;
+package pt.ulisboa.tecnico.amorphous.requestrouter.internal.shell;
 
 import java.io.IOException;
 

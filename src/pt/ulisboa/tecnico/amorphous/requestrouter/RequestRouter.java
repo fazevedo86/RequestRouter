@@ -1,53 +1,93 @@
 package pt.ulisboa.tecnico.amorphous.requestrouter;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import pt.ulisboa.tecnico.amorphous.requestrouter.config.ConfigHelper;
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.AmorphousServer;
-import pt.ulisboa.tecnico.amorphous.requestrouter.internal.RequestRouterCluster;
-import pt.ulisboa.tecnico.amorphous.requestrouter.lvs.LVSImplementation;
-import pt.ulisboa.tecnico.amorphous.requestrouter.shell.RequestRouterShell;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.amorphous.AmorphousCluster;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.amorphous.types.ClusterNode;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigHelper;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.config.ConfigOptionsHelper;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.lvs.LVSImplementation;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.shell.RequestRouterShell;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Cluster;
+import pt.ulisboa.tecnico.amorphous.requestrouter.internal.types.Server;
 
 public class RequestRouter {
 	
 	private final RequestRouterShell shell;
 	private final ConfigHelper config;
+	private final Cluster amorphousVirtualCluster;
+	private final AmorphousCluster amorphousClusterIntegration;
+	
+	private Map<Cluster,Set<Server>> clusters;
 
-	public RequestRouter(ConfigHelper ch, boolean cleanInstance, boolean interactive) {
+	public RequestRouter(ConfigOptionsHelper coh, boolean cleanInstance, boolean interactive) throws NumberFormatException, UnknownHostException, InstantiationException {
 		this.shell = new RequestRouterShell(this);
-		this.config = ch;
+		this.config = new ConfigHelper(coh);
 		
-		// TODO use the configuration
-		// TODO integrate with multicast announcements
+		Map<String, String> configs = coh.getAllConfigs();
 		
-		if(cleanInstance)
+		this.amorphousVirtualCluster = new Cluster( InetAddress.getByName(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_IP)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_RRCLUSTER_PORT)));
+		this.amorphousClusterIntegration = new AmorphousCluster(this, configs.get(ConfigOptionsHelper.KEY_AMORPH_GROUP), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_PORT)), Integer.parseInt(configs.get(ConfigOptionsHelper.KEY_AMORPH_HELLO_INTERVAL)));
+		
+		this.clusters = new HashMap<Cluster, Set<Server>>();
+		
+		if(cleanInstance){
 			this.cleanup();
+		} else {
+			// Add it anyway
+			LVSImplementation.addCluster(this.amorphousVirtualCluster);
+			List<Server> configuredServers = this.getClusterMembers(this.amorphousVirtualCluster);
+			List<ClusterNode> clusterNodes = new ArrayList<ClusterNode>(configuredServers.size());
+			for(Server s : configuredServers){
+				clusterNodes.add(new ClusterNode(s.getIP(), String.valueOf(s.getPort())));
+			}
+			this.amorphousClusterIntegration.importState(clusterNodes);
+		}
+			
 		if(interactive)
 			this.shell.startShell();
+		
+		this.amorphousClusterIntegration.startClusterService();
 	}
 	
-	public boolean addCluster(RequestRouterCluster rrCluster){
+	public boolean addCluster(Cluster rrCluster){
 		return LVSImplementation.addCluster(rrCluster);
 	}
 	
-	public boolean deleteCluster(RequestRouterCluster rrCluster){
+	public boolean deleteCluster(Cluster rrCluster){
 		return LVSImplementation.deleteCluster(rrCluster);
 	}
 	
-	public boolean addServer(RequestRouterCluster rrCluster, AmorphousServer server){
+	public boolean addServer(Cluster rrCluster, Server server){
 		return LVSImplementation.addServer(rrCluster, server);
 	}
 	
-	public boolean deleteServer(RequestRouterCluster rrCluster, AmorphousServer server){
+	public boolean deleteServer(Cluster rrCluster, Server server){
 		return LVSImplementation.deleteServer(rrCluster, server);
 	}
 	
-	public List<AmorphousServer> getClusterMembers(RequestRouterCluster cluster){
+	public List<Server> getClusterMembers(Cluster cluster){
 		return LVSImplementation.getClusterMembers(cluster);
 	}
 	
+	public boolean addServer(ClusterNode amorphousNode){
+		Server server = new Server(amorphousNode.getNodeIP(), this.amorphousVirtualCluster.getPort());
+		return this.addServer(this.amorphousVirtualCluster, server);
+	}
+	
+	public boolean deleteServer(ClusterNode amorphousNode){
+		Server server = new Server(amorphousNode.getNodeIP(), this.amorphousVirtualCluster.getPort());
+		return this.deleteServer(this.amorphousVirtualCluster, server);	}
+	
 	public void cleanup(){
-		// TODO delete all clusters
+		LVSImplementation.deleteAllClusters();
+		LVSImplementation.addCluster(this.amorphousVirtualCluster);
 	}
 
 }
