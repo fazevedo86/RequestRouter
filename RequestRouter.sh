@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Set paths
-RR_HOME=`dirname $0`
+#RR_HOME=`dirname $0`
+RR_HOME=`pwd`
 RR_JAR="${RR_HOME}/RequestRouter.jar"
 RR_LOGBACK="${RR_HOME}/logback.xml"
 
@@ -26,4 +27,4 @@ JVM_OPTS="$JVM_OPTS -XX:+UseParallelGC"
 EOF_LOGBACK
 
 echo "Starting RequestRouter..."
-java ${JVM_OPTS} -Dlogback.configurationFile=${RR_LOGBACK} -jar ${RR_JAR}
+java ${JVM_OPTS} -Dlogback.configurationFile=${RR_LOGBACK} -jar ${RR_JAR} $@
