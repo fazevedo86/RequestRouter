@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.amorphous.requestrouter.internal.types;
 
 import java.net.InetAddress;
 
-public class Server extends GenericNetworkService {
+public class Server extends GenericNetworkService implements Comparable<Server> {
 
 	public Server(InetAddress serverIP, int serverPort) {
 		super(serverIP, serverPort);
@@ -19,5 +19,10 @@ public class Server extends GenericNetworkService {
 			return super.equals(o);
 		
 		return false;
+	}
+
+	@Override
+	public int compareTo(Server o) {
+		return this.hashCode() - o.hashCode();
 	}
 }
